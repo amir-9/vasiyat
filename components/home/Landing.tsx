@@ -33,7 +33,7 @@ const Landing = () => {
         </Button>
       </main>
 
-      {/* <section className="relative grid grid-cols-1 md:grid-cols-3 gap-4 p-4 z-10">
+      <section className="relative grid grid-cols-1 md:grid-cols-3 gap-4 p-4 z-10">
         <div className="bg-black/10 backdrop-blur-xs p-6 rounded-lg text-white text-center shadow-md">
           <h3 className="text-3xl font-bold">{stats.users}+</h3>
           <p>{t("statsUsers")}</p>
@@ -46,7 +46,7 @@ const Landing = () => {
           <h3 className="text-3xl font-bold">{stats.sent}+</h3>
           <p>{t("statsSent")}</p>
         </div>
-      </section> */}
+      </section>
     </div>
   );
 };

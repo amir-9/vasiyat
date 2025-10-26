@@ -1,3 +1,5 @@
+"use client";
+
 import { forwardRef, ButtonHTMLAttributes } from "react";
 import Link from "next/link";
 
@@ -22,12 +24,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "rounded-lg font-yekan font-medium transition-all duration-200";
+      "rounded-lg font-yekan font-medium transition-all duration-200 backdrop-blur-sm border border-white/20 shadow-sm";
     const variantStyles = {
       primary:
-        "bg-primary text-white hover:bg-primary-hover focus:ring-2 focus:ring-primary/50",
+        "bg-primary/10 text-white hover:bg-primary/50 focus:ring-2 focus:ring-primary/50",
       secondary:
-        "bg-secondary text-primary-text hover:bg-secondary-hover focus:ring-2 focus:ring-secondary/50",
+        "bg-secondary/10 text-white hover:bg-secondary/50 focus:ring-2 focus:ring-secondary/50",
     };
     const sizeStyles = {
       sm: "px-3 py-1 text-sm",
@@ -41,7 +43,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     if (href) {
       return (
-        <Link href={href} className={combinedStyles + " inline-block"}>
+        <Link href={href} className={`${combinedStyles} inline-block`}>
           {loading ? (
             <span className="flex items-center gap-2">
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
