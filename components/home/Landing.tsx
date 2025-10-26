@@ -15,34 +15,39 @@ const Landing = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center relative"
+      className="h-screen pt-[75px] bg-cover bg-center relative flex flex-col justify-between"
       style={{ backgroundImage: "url(/images/home/landing.jpg)" }}
       dir="rtl"
     >
       <div className="absolute inset-0 bg-black/40"></div>
 
-      <main className="relative text-center py-20 z-10">
-        <h1 className="text-4xl md:text-5xl font-yekan font-bold text-white mb-4 mt-20">
+      <main className="container-xl relative z-10">
+        <h1 className="text-4xl md:text-5xl max-w-2xl leading-tight font-bold text-white mb-6 mt-20">
           {t("heroTitle")}
         </h1>
-        <p className="text-xl text-white mt-4 max-w-2xl mx-auto">
+        <p className="text-xl text-gray-100 mt-4 max-w-2xl ">
           {t("heroSubtitle")}
         </p>
-        <Button className="mt-4" variant="secondary" size="lg" href="/login">
+        <Button className="mt-4" variant="primary" size="lg" href="/login">
           {t("start")}
         </Button>
       </main>
 
-      <section className="relative grid grid-cols-1 md:grid-cols-3 gap-4 p-4 z-10">
-        <div className="bg-black/10 backdrop-blur-xs p-6 rounded-lg text-white text-center shadow-md">
+      <section
+        className="
+          bg-black/20 backdrop-blur-[1px]
+           relative grid grid-cols-1 md:grid-cols-3 gap-4 p-4 z-10
+           "
+      >
+        <div className=" p-6 rounded-lg text-white text-center shadow-md">
           <h3 className="text-3xl font-bold">{stats.users}+</h3>
           <p>{t("statsUsers")}</p>
         </div>
-        <div className="bg-black/10 backdrop-blur-xs p-6 rounded-lg text-white text-center shadow-md">
+        <div className=" p-6 rounded-lg text-white text-center shadow-md">
           <h3 className="text-3xl font-bold">{stats.wills}+</h3>
           <p>{t("statsWills")}</p>
         </div>
-        <div className="bg-black/10 backdrop-blur-xs p-6 rounded-lg text-white text-center shadow-md">
+        <div className=" p-6 rounded-lg text-white text-center shadow-md">
           <h3 className="text-3xl font-bold">{stats.sent}+</h3>
           <p>{t("statsSent")}</p>
         </div>

@@ -64,6 +64,11 @@ body {
   text-align: left;
 }
 
+.h-screen-navbar {
+  height: calc(100vh - 75px);
+}
+/* ----------- container ----------- */
+
 .container {
   max-width: 1440px;
   width: 100%;
