@@ -9,6 +9,7 @@ import {
   UserGroupIcon,
   DocumentTextIcon,
   PaperAirplaneIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 
 import Button from "@/components/utils/Button";
@@ -29,7 +30,7 @@ const Landing = () => {
     >
       <div className="absolute inset-0 bg-black/40"></div>
 
-      <main className="container-xl relative z-10 flex flex-col items-start">
+      <main className="container relative z-10 flex flex-col items-start">
         <motion.h1
           className="text-4xl md:text-5xl max-w-2xl leading-tight font-bold text-white mb-6 mt-20"
           initial={{ opacity: 0, y: 20 }}
@@ -54,20 +55,8 @@ const Landing = () => {
           <Button className="mt-4" variant="primary" size="lg" href="/login">
             <span className="flex items-center gap-2">
               {t("start")}
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
+
+              <ArrowLeftIcon className="size-6" />
             </span>
           </Button>
         </motion.div>
@@ -79,7 +68,7 @@ const Landing = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="container-xl grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="container flex justify-between items-center gap-4">
           {[
             {
               value: stats.users,
@@ -102,7 +91,7 @@ const Landing = () => {
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
-              className="p-4 pb-2 rounded-lg text-white text-center shadow-md "
+              className="pt-4 pb-2 rounded-lg text-white text-center shadow-md "
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 + index * 0.2 }}
