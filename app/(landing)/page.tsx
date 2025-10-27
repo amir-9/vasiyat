@@ -1,10 +1,10 @@
 import Landing from "@/components/home/Landing";
 import HowItWorks from "@/components/home/HowItWorks";
-// import WhyWasiyatnameh from "@/components/home/WhyWasiyatnameh";
-// import Security from "@/components/home/Security";
-// import Testimonials from "@/components/home/Testimonials";
+import WhyWasiyatnameh from "@/components/home/WhyWasiyatnameh";
+import Security from "@/components/home/Security";
+import Testimonials from "@/components/home/Testimonials";
 // import Features from "@/components/home/Features";
-// import EmotionalSection from "@/components/home/EmotionalSection";
+import EmotionalSection from "@/components/home/EmotionalSection";
 // import FinalCTA from "@/components/home/FinalCTA";
 
 export default function HomePage() {
@@ -17,19 +17,19 @@ export default function HomePage() {
       <HowItWorks />
 
       {/* 🧭 چرا وصیت‌نامه؟ */}
-      {/* <WhyWasiyatnameh /> */}
+      <WhyWasiyatnameh />
 
       {/* 🔒 امنیت و اعتماد */}
-      {/* <Security /> */}
+      <Security />
 
       {/* 💬 نظرات کاربران */}
-      {/* <Testimonials /> */}
+      <Testimonials />
 
       {/* ✨ ویژگی‌ها */}
       {/* <Features /> */}
 
       {/* 🧘 بخش احساسی / الهام‌بخش */}
-      {/* <EmotionalSection /> */}
+      <EmotionalSection />
 
       {/* 💌 دعوت به اقدام پایانی */}
       {/* <FinalCTA /> */}

@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import Navbar from "@/components/utils/Navbar";
 import Footer from "@/components/utils/Footer";
 
+
 // @ts-expect-error - side-effect import of global CSS without a declaration file
 import "./styles/globals.css";
 

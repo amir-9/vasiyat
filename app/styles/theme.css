@@ -85,4 +85,7 @@
     font-weight: 500; /* font-medium */
     line-height: 1.45;
   }
+  p {
+    text-align: start;
+  }
 }
