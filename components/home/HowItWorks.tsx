@@ -42,7 +42,7 @@ const HowItWorks = () => {
             return (
               <motion.div
                 key={index}
-                className="flex flex-col items-start bg-gray-50/50 p-8 rounded-2xl hover:shadow-md transition-shadow"
+                className="flex flex-col items-start bg-white/50 p-8 rounded-2xl hover:shadow-md transition-shadow"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
