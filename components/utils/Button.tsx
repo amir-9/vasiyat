@@ -7,7 +7,6 @@ import {
   Transition,
   useMotionValue,
   useSpring,
-  useTransform, // ✅ اضافه شد
   MotionValue,
 } from "framer-motion";
 
@@ -66,7 +65,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     // 🧱 Base Tailwind styles
     const baseStyles =
-      "relative overflow-hidden rounded-full font-yekan font-medium shadow-sm flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none select-none";
+      "relative overflow-hidden rounded-full font-yekan font-medium shadow-sm flex justify-center items-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none select-none";
 
     const sizeStyles = {
       sm: "h-8 px-4 text-sm",
