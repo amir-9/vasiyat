@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import Footer from "@/components/utils/Footer";
 
 export const metadata: Metadata = {
-  title: "وصیت‌نامه",
-  description: "برای آینده. وصیت‌نامه خودت رو بنویس ",
+  title: "یادگار",
+  description: "سرویس آنلاین نوشتن وصیت‌نامه دیجیتال",
 };
 
 export default async function RoutesLayout({

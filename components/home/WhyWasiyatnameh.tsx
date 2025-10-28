@@ -9,8 +9,8 @@ interface itemType {
   description: string;
 }
 
-const WhyWasiyatnameh = () => {
-  const t = useTranslations("whyWasiyatnameh");
+const WhyYadegar = () => {
+  const t = useTranslations("whyYadegar");
   const points = t.raw("points");
   const icons = [Heart, PenLine, Shield];
 
@@ -63,4 +63,4 @@ const WhyWasiyatnameh = () => {
   );
 };
 
-export default WhyWasiyatnameh;
+export default WhyYadegar;

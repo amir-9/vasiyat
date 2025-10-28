@@ -10,25 +10,18 @@ import EmotionalSection from "@/components/home/EmotionalSection";
 export default function HomePage() {
   return (
     <div className="w-full overflow-x-hidden">
-      {/* 🌅 بخش قهرمان (Hero) */}
       <Landing />
-
-      {/* 💡 چطور کار می‌کند */}
       <HowItWorks />
 
-      {/* 🧭 چرا وصیت‌نامه؟ */}
       <WhyWasiyatnameh />
 
-      {/* 🔒 امنیت و اعتماد */}
       <Security />
 
-      {/* 💬 نظرات کاربران */}
       <Testimonials />
 
       {/* ✨ ویژگی‌ها */}
       {/* <Features /> */}
 
-      {/* 🧘 بخش احساسی / الهام‌بخش */}
       <EmotionalSection />
 
       {/* 💌 دعوت به اقدام پایانی */}

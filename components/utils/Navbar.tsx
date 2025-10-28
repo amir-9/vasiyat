@@ -43,11 +43,11 @@ const Navbar = () => {
       <nav className="relative flex items-center justify-between container mx-auto xl:max-w-7xl py-4 px-6">
         <motion.div
           className={clsx(
-            "text-xl font-yekan font-bold transition-colors duration-300",
+            "text-3xl font-yekan font-bold transition-colors duration-300",
             scrolled ? "text-primary-text" : "text-white"
           )}
         >
-          <Link href={"/"}>وصیت‌نامه</Link>
+          <Link href={"/"}>{t("appName")}</Link>
         </motion.div>
 
         <Button

@@ -5,8 +5,8 @@ import "./styles/globals.css";
 import Navbar from "@/components/utils/Navbar";
 
 export const metadata: Metadata = {
-  title: "وصیت‌نامه",
-  description: "با پول یه قهوه وصیت‌نامه خودت رو بنویس ",
+  title: "یادگار",
+  description: "سرویس آنلاین نوشتن وصیت‌نامه دیجیتال",
 };
 
 export default async function RootLayout({
