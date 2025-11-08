@@ -1,28 +1,108 @@
 // app/login/page.tsx
 "use client";
 
+import { useState } from "react";
 import Button from "@/components/utils/Button";
 import FloatingInput from "@/components/utils/FloatingInput";
-import { useLogin } from "./useLogin";
+import { useCheckUser, useSignup, useVerifyOtp } from "@/hooks/useAuth";
+import {
+  phoneSchema,
+  nameSchema,
+  familySchema,
+  otpSchema,
+} from "./loginSchemas";
+import { getErrorMessage } from "@/utils/error-handler";
+
+type Step = "check" | "otp";
+type Errors = { phone?: string; name?: string; family?: string; otp?: string };
 
 const LoginPage = () => {
-  const {
-    phone,
-    name,
-    family,
-    otp,
-    setPhone,
-    setName,
-    setFamily,
-    setOtp,
-    hasAccount,
-    step,
-    errors,
-    loading,
-    handleCheckUser,
-    handleSendOtp,
-    handleVerifyOtp,
-  } = useLogin();
+  // States
+  const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
+  const [family, setFamily] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<Step>("check");
+  const [hasAccount, setHasAccount] = useState<null | boolean>(null);
+  const [errors, setErrors] = useState<Errors>({});
+
+  // Mutations
+  const checkUserMutation = useCheckUser();
+  const signupMutation = useSignup();
+  const verifyOtpMutation = useVerifyOtp();
+
+  // ✅ Step 1: Check if user exists
+  const handleCheckUser = async () => {
+    const result = phoneSchema.safeParse(phone);
+    if (!result.success) {
+      setErrors({ phone: result.error.issues[0].message });
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      const response = await checkUserMutation.mutateAsync({ phone });
+      setHasAccount(response.data.userExists);
+      setStep(response.data.userExists ? "otp" : "check");
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, "خطا در بررسی کاربر");
+
+      setErrors({ phone: errorMessage });
+    }
+  };
+
+  // ✅ Step 2: Send OTP for new user
+  const handleSendOtp = async () => {
+    const nameCheck = nameSchema.safeParse(name);
+    const familyCheck = familySchema.safeParse(family);
+    const newErrors: Errors = {};
+
+    if (!nameCheck.success) newErrors.name = nameCheck.error.issues[0].message;
+    if (!familyCheck.success)
+      newErrors.family = familyCheck.error.issues[0].message;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      await signupMutation.mutateAsync({ phone, name, family });
+      setStep("otp");
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, "خطا در ارسال کد");
+
+      setErrors({ name: errorMessage });
+    }
+  };
+
+  // ✅ Step 3: Verify OTP
+  const handleVerifyOtp = async () => {
+    const otpCheck = otpSchema.safeParse(otp);
+    if (!otpCheck.success) {
+      setErrors({ otp: otpCheck.error.issues[0].message });
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      await verifyOtpMutation.mutateAsync({ phone, otp });
+      // هدایت به داشبورد توسط هوک انجام می‌شود
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, "کد تایید اشتباه است");
+
+      setErrors({ otp: errorMessage });
+    }
+  };
+
+  const loading =
+    checkUserMutation.isPending ||
+    signupMutation.isPending ||
+    verifyOtpMutation.isPending;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-linear-to-b from-[#1e77ae] to-[#373787] px-4">
@@ -47,9 +127,10 @@ const LoginPage = () => {
               size="lg"
               onClick={handleCheckUser}
               disabled={loading}
+              loading={loading}
               className="w-full"
             >
-              {loading ? "در حال بررسی..." : "ادامه"}
+              ادامه
             </Button>
           </>
         )}
@@ -78,9 +159,10 @@ const LoginPage = () => {
               size="lg"
               onClick={handleSendOtp}
               disabled={loading}
+              loading={loading}
               className="w-full"
             >
-              {loading ? "در حال ارسال..." : "دریافت کد ورود"}
+              دریافت کد ورود
             </Button>
           </>
         )}
@@ -101,9 +183,10 @@ const LoginPage = () => {
               size="lg"
               onClick={handleVerifyOtp}
               disabled={loading}
+              loading={loading}
               className="w-full"
             >
-              {loading ? "در حال ورود..." : "ورود به حساب"}
+              ورود به حساب
             </Button>
           </>
         )}
