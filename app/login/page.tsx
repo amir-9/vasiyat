@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Button from "@/components/utils/Button";
 import FloatingInput from "@/components/utils/FloatingInput";
-import { useCheckUser, useSignup, useVerifyOtp } from "@/hooks/useAuth";
+import { useRequestOtp, useVerifyOtp, useSignup } from "@/hooks/useAuth";
 import {
   phoneSchema,
   nameSchema,
@@ -13,7 +13,7 @@ import {
 } from "./loginSchemas";
 import { getErrorMessage } from "@/utils/error-handler";
 
-type Step = "check" | "otp";
+type Step = "phone" | "otp" | "signup";
 type Errors = { phone?: string; name?: string; family?: string; otp?: string };
 
 const LoginPage = () => {
@@ -22,17 +22,17 @@ const LoginPage = () => {
   const [name, setName] = useState("");
   const [family, setFamily] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState<Step>("check");
-  const [hasAccount, setHasAccount] = useState<null | boolean>(null);
+  const [step, setStep] = useState<Step>("phone");
+  const [temp, setTemp] = useState(""); // کد موقت از API
   const [errors, setErrors] = useState<Errors>({});
 
   // Mutations
-  const checkUserMutation = useCheckUser();
-  const signupMutation = useSignup();
+  const requestOtpMutation = useRequestOtp();
   const verifyOtpMutation = useVerifyOtp();
+  const signupMutation = useSignup();
 
-  // ✅ Step 1: Check if user exists
-  const handleCheckUser = async () => {
+  // ✅ مرحله 1: درخواست OTP
+  const handleRequestOtp = async () => {
     const result = phoneSchema.safeParse(phone);
     if (!result.success) {
       setErrors({ phone: result.error.issues[0].message });
@@ -42,18 +42,50 @@ const LoginPage = () => {
     setErrors({});
 
     try {
-      const response = await checkUserMutation.mutateAsync({ phone });
-      setHasAccount(response.data.userExists);
-      setStep(response.data.userExists ? "otp" : "check");
-    } catch (error: unknown) {
-      const errorMessage = getErrorMessage(error, "خطا در بررسی کاربر");
+      const response = await requestOtpMutation.mutateAsync({ phone });
 
+      // ذخیره temp برای مرحله بعد
+      if (response.data.temp) {
+        setTemp(response.data.temp);
+      }
+
+      setStep("otp");
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, "خطا در ارسال کد");
       setErrors({ phone: errorMessage });
     }
   };
 
-  // ✅ Step 2: Send OTP for new user
-  const handleSendOtp = async () => {
+  // ✅ مرحله 2: تأیید OTP
+  const handleVerifyOtp = async () => {
+    const otpCheck = otpSchema.safeParse(otp);
+    if (!otpCheck.success) {
+      setErrors({ otp: otpCheck.error.issues[0].message });
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      const response = await verifyOtpMutation.mutateAsync({
+        phone,
+        otp,
+        temp,
+      });
+
+      // اگر signup: true بود، باید اطلاعات تکمیلی بگیریم
+      if (response.data.signup) {
+        setStep("signup");
+      }
+      // اگر signup: false بود، کاربر لاگین شده و redirect می‌شه
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, "کد تأیید اشتباه است");
+      setErrors({ otp: errorMessage });
+    }
+  };
+
+  // ✅ مرحله 3: تکمیل ثبت‌نام (فقط برای کاربران جدید)
+  const handleSignup = async () => {
     const nameCheck = nameSchema.safeParse(name);
     const familyCheck = familySchema.safeParse(family);
     const newErrors: Errors = {};
@@ -71,38 +103,17 @@ const LoginPage = () => {
 
     try {
       await signupMutation.mutateAsync({ phone, name, family });
-      setStep("otp");
+      // redirect به dashboard توسط هوک انجام می‌شود
     } catch (error: unknown) {
-      const errorMessage = getErrorMessage(error, "خطا در ارسال کد");
-
+      const errorMessage = getErrorMessage(error, "خطا در ثبت‌نام");
       setErrors({ name: errorMessage });
     }
   };
 
-  // ✅ Step 3: Verify OTP
-  const handleVerifyOtp = async () => {
-    const otpCheck = otpSchema.safeParse(otp);
-    if (!otpCheck.success) {
-      setErrors({ otp: otpCheck.error.issues[0].message });
-      return;
-    }
-
-    setErrors({});
-
-    try {
-      await verifyOtpMutation.mutateAsync({ phone, otp });
-      // هدایت به داشبورد توسط هوک انجام می‌شود
-    } catch (error: unknown) {
-      const errorMessage = getErrorMessage(error, "کد تایید اشتباه است");
-
-      setErrors({ otp: errorMessage });
-    }
-  };
-
   const loading =
-    checkUserMutation.isPending ||
-    signupMutation.isPending ||
-    verifyOtpMutation.isPending;
+    requestOtpMutation.isPending ||
+    verifyOtpMutation.isPending ||
+    signupMutation.isPending;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-linear-to-b from-[#1e77ae] to-[#373787] px-4">
@@ -111,8 +122,8 @@ const LoginPage = () => {
           ورود / ثبت‌نام
         </h2>
 
-        {/* Step 1: Phone */}
-        {hasAccount === null && (
+        {/* مرحله 1: شماره موبایل */}
+        {step === "phone" && (
           <>
             <FloatingInput
               id="phone"
@@ -125,18 +136,42 @@ const LoginPage = () => {
             <Button
               variant="white"
               size="lg"
-              onClick={handleCheckUser}
+              onClick={handleRequestOtp}
               disabled={loading}
               loading={loading}
               className="w-full"
             >
-              ادامه
+              دریافت کد تأیید
             </Button>
           </>
         )}
 
-        {/* Step 2: New User Info */}
-        {hasAccount === false && step === "check" && (
+        {/* مرحله 2: تأیید OTP */}
+        {step === "otp" && (
+          <>
+            <FloatingInput
+              id="otp"
+              label="کد تأیید"
+              type="number"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              error={errors.otp}
+            />
+            <Button
+              variant="white"
+              size="lg"
+              onClick={handleVerifyOtp}
+              disabled={loading}
+              loading={loading}
+              className="w-full"
+            >
+              تأیید کد
+            </Button>
+          </>
+        )}
+
+        {/* مرحله 3: ثبت‌نام (فقط کاربران جدید) */}
+        {step === "signup" && (
           <>
             <FloatingInput
               id="name"
@@ -157,36 +192,12 @@ const LoginPage = () => {
             <Button
               variant="white"
               size="lg"
-              onClick={handleSendOtp}
+              onClick={handleSignup}
               disabled={loading}
               loading={loading}
               className="w-full"
             >
-              دریافت کد ورود
-            </Button>
-          </>
-        )}
-
-        {/* Step 3: OTP */}
-        {(hasAccount === true || step === "otp") && (
-          <>
-            <FloatingInput
-              id="otp"
-              label="کد تأیید"
-              type="number"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              error={errors.otp}
-            />
-            <Button
-              variant="white"
-              size="lg"
-              onClick={handleVerifyOtp}
-              disabled={loading}
-              loading={loading}
-              className="w-full"
-            >
-              ورود به حساب
+              تکمیل ثبت‌نام
             </Button>
           </>
         )}

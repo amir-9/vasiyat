@@ -7,86 +7,117 @@ import type {
   SignupResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
-  RefreshTokenRequest,
-  RefreshTokenResponse,
   ApiResponse,
 } from "@/types/api";
 
 class AuthService {
   /**
-   * بررسی وجود کاربر با شماره موبایل
+   * درخواست OTP - مرحله اول
+   * POST /api/v1/users/otp
    */
-  async checkUser(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    const response = await axiosInstance.post("/auth/check-user", data);
+  async requestOtp(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+    const response = await axiosInstance.post("/v1/users/otp", {
+      mobile: data.phone,
+      device_id: this.getDeviceId(),
+    });
     return response.data;
   }
 
   /**
-   * ثبت‌نام کاربر جدید
-   */
-  async signup(data: SignupRequest): Promise<ApiResponse<SignupResponse>> {
-    const response = await axiosInstance.post("/auth/signup", data);
-    return response.data;
-  }
-
-  /**
-   * تأیید کد OTP و ورود
+   * تأیید OTP - مرحله دوم
+   * POST /api/v1/users/otpverify
    */
   async verifyOtp(
     data: VerifyOtpRequest
   ): Promise<ApiResponse<VerifyOtpResponse>> {
-    const response = await axiosInstance.post("/auth/verify-otp", data);
+    const response = await axiosInstance.post("/v1/users/otpverify", {
+      mobile: data.phone,
+      temp: data.temp, // از response requestOtp
+      code: data.otp,
+      device_id: this.getDeviceId(),
+      device_name: this.getDeviceName(),
+    });
 
-    // ذخیره توکن‌ها در localStorage
-    if (response.data.success) {
+    // ذخیره توکن
+    if (response.data.success && response.data.data.token) {
       localStorage.setItem("token", response.data.data.token);
-      localStorage.setItem("refreshToken", response.data.data.refreshToken);
+      if (response.data.data.refreshToken) {
+        localStorage.setItem("refreshToken", response.data.data.refreshToken);
+      }
     }
 
     return response.data;
   }
 
   /**
-   * رفرش توکن
+   * تکمیل ثبت‌نام - اگر signup: true بود
+   * POST /api/v1/users/signup
    */
-  async refreshToken(
-    data: RefreshTokenRequest
-  ): Promise<ApiResponse<RefreshTokenResponse>> {
-    const response = await axiosInstance.post("/auth/refresh", data);
-
-    // به‌روزرسانی توکن جدید
-    if (response.data.success) {
-      localStorage.setItem("token", response.data.data.token);
-    }
-
+  async signup(data: SignupRequest): Promise<ApiResponse<SignupResponse>> {
+    const response = await axiosInstance.post("/v1/users/signup", {
+      fullname: `${data.name} ${data.family}`,
+    });
     return response.data;
   }
 
   /**
-   * خروج از حساب کاربری
+   * خروج از حساب
    */
   async logout(): Promise<void> {
     try {
-      await axiosInstance.post("/auth/logout");
+      // اگر endpoint logout دارید
+      // await axiosInstance.post("/v1/users/logout");
     } finally {
-      // پاک کردن توکن‌ها
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
     }
   }
 
   /**
-   * دریافت توکن فعلی
+   * دریافت توکن
    */
   getToken(): string | null {
     return localStorage.getItem("token");
   }
 
   /**
-   * بررسی وضعیت لاگین
+   * بررسی لاگین
    */
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  /**
+   * تولید Device ID
+   */
+  private getDeviceId(): string {
+    let deviceId = localStorage.getItem("device_id");
+    if (!deviceId) {
+      deviceId = this.generateUUID();
+      localStorage.setItem("device_id", deviceId);
+    }
+    return deviceId;
+  }
+
+  /**
+   * دریافت نام دستگاه
+   */
+  private getDeviceName(): string {
+    return navigator.userAgent;
+  }
+
+  /**
+   * تولید UUID ساده
+   */
+  private generateUUID(): string {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0,
+          v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
   }
 }
 

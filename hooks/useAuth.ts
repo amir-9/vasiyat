@@ -11,31 +11,19 @@ import type {
 } from "@/types/api";
 
 /**
- * هوک بررسی وجود کاربر
+ * هوک درخواست OTP (مرحله اول)
  */
-export function useCheckUser() {
+export function useRequestOtp() {
   return useMutation({
-    mutationFn: (data: LoginRequest) => authService.checkUser(data),
+    mutationFn: (data: LoginRequest) => authService.requestOtp(data),
     onError: (error) => {
-      console.error("خطا در بررسی کاربر:", error);
+      console.error("خطا در ارسال کد:", error);
     },
   });
 }
 
 /**
- * هوک ثبت‌نام
- */
-export function useSignup() {
-  return useMutation({
-    mutationFn: (data: SignupRequest) => authService.signup(data),
-    onError: (error) => {
-      console.error("خطا در ثبت‌نام:", error);
-    },
-  });
-}
-
-/**
- * هوک تأیید OTP و ورود
+ * هوک تأیید OTP (مرحله دوم)
  */
 export function useVerifyOtp() {
   const router = useRouter();
@@ -44,9 +32,14 @@ export function useVerifyOtp() {
   return useMutation({
     mutationFn: (data: VerifyOtpRequest) => authService.verifyOtp(data),
     onSuccess: (response) => {
-      // ذخیره اطلاعات کاربر در کش
+      // اگر signup: true بود، باید به صفحه signup بره
+      if (response.data.signup) {
+        // فعلا توکن رو ذخیره کن
+        return;
+      }
+
+      // اگر signup: false بود، کاربر لاگین شده
       queryClient.setQueryData(["user"], response.data.user);
-      // هدایت به داشبورد
       router.push("/dashboard");
     },
     onError: (error) => {
@@ -56,7 +49,25 @@ export function useVerifyOtp() {
 }
 
 /**
- * هوک خروج از حساب
+ * هوک تکمیل ثبت‌نام (مرحله سوم - فقط برای کاربران جدید)
+ */
+export function useSignup() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: SignupRequest) => authService.signup(data),
+    onSuccess: () => {
+      // بعد از signup موفق، به داشبورد هدایت کن
+      router.push("/dashboard");
+    },
+    onError: (error) => {
+      console.error("خطا در ثبت‌نام:", error);
+    },
+  });
+}
+
+/**
+ * هوک خروج
  */
 export function useLogout() {
   const router = useRouter();
@@ -65,16 +76,14 @@ export function useLogout() {
   return useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
-      // پاک کردن تمام کش‌ها
       queryClient.clear();
-      // هدایت به صفحه ورود
       router.push("/login");
     },
   });
 }
 
 /**
- * هوک بررسی وضعیت لاگین
+ * هوک بررسی لاگین
  */
 export function useIsAuthenticated() {
   return useQuery({

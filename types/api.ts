@@ -6,29 +6,37 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  success: boolean;
   message: string;
-  userExists: boolean;
+  temp?: string; // کد موقت برای مرحله بعد
+  userExists?: boolean; // signup اگر true باشه باید به صفحه signup بره
 }
 
 export interface SignupRequest {
   phone: string;
   name: string;
   family: string;
+  token?: string; // توکن از مرحله قبل
 }
 
 export interface SignupResponse {
+  success: boolean;
   message: string;
 }
 
 export interface VerifyOtpRequest {
   phone: string;
   otp: string;
+  temp: string; // از response requestOtp
 }
 
 export interface VerifyOtpResponse {
+  success: boolean;
+  message: string;
   token: string;
-  refreshToken: string;
+  refreshToken?: string;
   user: User;
+  signup?: boolean; // اگر true باید به صفحه signup بره
 }
 
 export interface RefreshTokenRequest {
@@ -45,6 +53,7 @@ export interface User {
   phone: string;
   name: string;
   family: string;
+  fullname?: string;
   email?: string;
   createdAt: string;
   updatedAt: string;
@@ -54,6 +63,33 @@ export interface UpdateProfileRequest {
   name?: string;
   family?: string;
   email?: string;
+}
+
+// ===== Home Types =====
+export interface HomeData {
+  success: boolean;
+  message: string;
+  comments: Comment[];
+  orders: {
+    submited: number;
+    success: number;
+  };
+}
+
+export interface Comment {
+  _id: string;
+  user_id: string;
+  product_id: string;
+  comment: string;
+  fullname: string;
+  confirmed: boolean;
+  rate: number;
+  createdAt: string;
+  __v: number;
+  device_id: string;
+  ip: string;
+  name: string;
+  user: string;
 }
 
 // ===== Will Types =====
